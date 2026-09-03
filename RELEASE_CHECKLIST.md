@@ -48,5 +48,5 @@
   уже выданную работу, её эталон и тесты проходят на обеих версиях либо
   различие явно описано.
 - [ ] Update-PR для выданной ДЗ атомарно обновляет `assignment_version`,
-  release manifest, `pyproject.toml` и `uv.lock`; старый grading profile
+  release manifest, `pyproject.toml` и `uv.lock`; старый профиль проверки
   сохранён для ранее зафиксированных попыток.
