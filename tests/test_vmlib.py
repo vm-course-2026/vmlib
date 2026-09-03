@@ -266,10 +266,26 @@ def test_version_and_fingerprint_are_public():
     assert metadata["project"]["version"] == vm.__version__
     assert metadata["project"]["name"] == "vmlib-course"
 
+
+def test_doctor_is_path_safe_and_ascii_compatible():
     env = dict(os.environ, PYTHONPATH=str(Path(__file__).resolve().parents[2]))
+    # A redirected stream on an English Windows runner may use a legacy
+    # codepage.  ASCII is the strictest useful common denominator and catches
+    # accidental non-ASCII status messages on every development platform.
+    env.update({"MPLBACKEND": "Agg", "PYTHONIOENCODING": "ascii:strict"})
     proc = subprocess.run(
-        [sys.executable, "-m", "vmlib.doctor"], text=True, capture_output=True,
-        env=env, check=True,
+        [sys.executable, "-m", "vmlib.doctor"],
+        capture_output=True,
+        encoding="ascii",
+        env=env,
+        timeout=30,
     )
+    assert proc.returncode == 0, (
+        f"vmlib.doctor exited with {proc.returncode}\n"
+        f"stdout:\n{proc.stdout}\n"
+        f"stderr:\n{proc.stderr}"
+    )
+    assert "Status:     ready" in proc.stdout
+    assert proc.stdout.isascii()
     assert sys.executable not in proc.stdout
     assert str(Path.home()) not in proc.stdout

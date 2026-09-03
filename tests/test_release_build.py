@@ -11,10 +11,23 @@ import pytest
 
 
 SCRIPT = Path(__file__).resolve().parents[1] / "tools" / "build_release.py"
+WORKFLOW = Path(__file__).resolve().parents[1] / ".github" / "workflows" / "ci.yml"
 SPEC = importlib.util.spec_from_file_location("vmlib_release_build", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 release = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(release)
+
+
+def test_ci_does_not_double_run_feature_branch_pushes():
+    workflow = WORKFLOW.read_text("utf-8")
+    assert (
+        '  push:\n'
+        '    branches:\n'
+        '      - main\n'
+        '    tags:\n'
+        '      - "v*"\n'
+        '  pull_request:\n'
+    ) in workflow
 
 
 def _raw_sdist(path: Path, *, reverse: bool, identity: int) -> None:
