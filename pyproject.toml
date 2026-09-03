@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vmlib-course"
+version = "1.1.0"
+description = "Проверяемые измерения, диагностика и визуализация численных методов"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "VM Course contributors"}]
+keywords = ["numerical-methods", "education", "visualization", "benchmarking"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "matplotlib>=3.8,<4",
+    "numpy>=1.26,<3",
+    "pillow>=10.2,<13",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+vmlib-doctor = "vmlib.doctor:main"
+
+[project.urls]
+Repository = "https://github.com/vm-course-2026/vmlib"
+Issues = "https://github.com/vm-course-2026/vmlib/issues"
+Security = "https://github.com/vm-course-2026/vmlib/security/advisories/new"
+
+[tool.setuptools]
+packages = ["vmlib"]
+package-dir = {vmlib = "."}
+
+[tool.pytest.ini_options]
+addopts = "-ra --import-mode=importlib"
+testpaths = ["tests"]

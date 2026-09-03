@@ -1,0 +1,43 @@
+name: Ошибка в vmlib
+description: Воспроизводимый дефект библиотеки
+title: "[bug] "
+labels: [bug, needs-triage]
+body:
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Минимальный пример
+      description: Оставьте только код, необходимый для воспроизведения дефекта.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ожидаемое поведение
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Фактическое поведение и traceback
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: ОС, Python, версия и fingerprint vmlib
+      placeholder: macOS 15; Python 3.12; vmlib 1.1.0; abcdef123456
+    validations:
+      required: true
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Перед отправкой
+      options:
+        - label: Я проверил(а), что похожего issue ещё нет.
+          required: true
+        - label: Я удалил(а) токены, персональные данные и закрытый код.
+          required: true
+        - label: Это не приватный отчёт об уязвимости.
+          required: true

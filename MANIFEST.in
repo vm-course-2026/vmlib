@@ -1,0 +1,4 @@
+include CONTRIBUTING.md
+include RELEASE_CHECKLIST.md
+include SECURITY.md
+include tools/build_release.py

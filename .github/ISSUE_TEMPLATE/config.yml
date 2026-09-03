@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Приватный отчёт об уязвимости
+    url: https://github.com/vm-course-2026/vmlib/security/advisories/new
+    about: Не публикуйте сведения об уязвимости в обычном issue.
+  - name: Вопрос и обсуждение
+    url: https://github.com/vm-course-2026/vmlib/discussions
+    about: Для вопросов об использовании, которые не являются дефектами.

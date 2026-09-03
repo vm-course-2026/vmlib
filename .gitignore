@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.wheel-smoke/
+.idea/
+.vscode/
+build/
+dist/
+*.egg-info/
+.DS_Store

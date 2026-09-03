@@ -1,0 +1,81 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    name: pytest (${{ matrix.os }}, py${{ matrix.python }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.9.14"
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+      - run: uv sync --frozen --extra test
+      - run: uv run pytest
+        env:
+          MPLBACKEND: Agg
+
+  distribution:
+    name: build and install distribution
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.9.14"
+          python-version: "3.13"
+          enable-cache: true
+      - name: Build wheel and sdist
+        run: python tools/build_release.py
+      - name: Require exactly one wheel and one sdist
+        shell: bash
+        run: |
+          test "$(find dist -maxdepth 1 -type f -name '*.whl' | wc -l)" -eq 1
+          test "$(find dist -maxdepth 1 -type f -name '*.tar.gz' | wc -l)" -eq 1
+          python tools/build_release.py --check-only
+      - name: Install and import the wheel
+        shell: bash
+        run: |
+          wheel="$(find dist -maxdepth 1 -type f -name '*.whl' -print -quit)"
+          uv venv --python 3.13 .wheel-smoke
+          uv pip install --python .wheel-smoke/bin/python "$wheel"
+          .wheel-smoke/bin/python -c "import importlib.metadata as m, pathlib, sys, vmlib; p = pathlib.Path(vmlib.__file__).resolve(); assert m.version('vmlib-course') == vmlib.__version__; assert pathlib.Path(sys.prefix).resolve() in p.parents; print(vmlib.__version__, vmlib.source_fingerprint(), p)"
+          .wheel-smoke/bin/vmlib-doctor
+        env:
+          MPLBACKEND: Agg
+
+  quality-gate:
+    name: quality-gate
+    if: ${{ always() }}
+    needs: [pytest, distribution]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require every CI job to pass
+        shell: bash
+        run: |
+          test "${{ needs.pytest.result }}" = "success"
+          test "${{ needs.distribution.result }}" = "success"
