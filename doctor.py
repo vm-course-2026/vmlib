@@ -23,7 +23,11 @@ def main() -> int:
     print(f"Pillow:     {PIL.__version__}")
     print(f"vmlib:      {vmlib.__version__} ({vmlib.source_fingerprint()})")
     ok = (3, 11) <= sys.version_info[:2] < (3, 14)
-    print("Итог:       " + ("окружение готово" if ok else "неподдерживаемый Python"))
+    # Keep the machine-readable diagnostic output ASCII-only.  In particular,
+    # redirected stdout on an English Windows installation can use cp1252;
+    # printing Cyrillic there raises UnicodeEncodeError before the exit status
+    # can describe the actual environment health.
+    print("Status:     " + ("ready" if ok else "unsupported Python"))
     return 0 if ok else 1
 
 
